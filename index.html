@@ -1,1 +1,269 @@
-<h1>Trang tỏ tình</h1>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tỏ Tình</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #ff9a9e, #fad0c4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    text-align: center;
+    position: relative;
+  }
+  .card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    max-width: 400px;
+    position: relative;
+    user-select: none;
+  }
+  h1 {
+    color: #e91e63;
+    margin-bottom: 10px;
+  }
+  p {
+    font-size: 18px;
+  }
+  .btn {
+    background-color: #e91e63;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 10px 5px 0 5px;
+    user-select: none;
+    transition: background-color 0.3s;
+    position: relative;
+  }
+  .btn:hover {
+    background-color: #c2185b;
+  }
+  #noBtn {
+    position: absolute;
+    cursor: pointer;
+    user-select: none;
+    transition: none;
+  }
+  #noMessage {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #e91e63;
+    font-weight: bold;
+    user-select: none;
+    display: none;
+  }
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .heart {
+    position: fixed;
+    width: 20px; height: 20px;
+    background-color: red;
+    transform: rotate(45deg);
+    animation: float 4s linear infinite;
+    opacity: 0.8;
+  }
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 20px; height: 20px;
+    background-color: red;
+    border-radius: 50%;
+  }
+  .heart::before {
+    top: -10px; left: 0;
+  }
+  .heart::after {
+    left: -10px; top: 0;
+  }
+  @keyframes float {
+    0% {
+      transform: translateY(0) scale(1) rotate(45deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) scale(1.5) rotate(45deg);
+      opacity: 0;
+    }
+  }
+  #bigHeart {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 60px;
+    color: #e91e63;
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+    user-select: none;
+    z-index: 10;
+  }
+  #bigHeart.show {
+    opacity: 1;
+  }
+</style>
+</head>
+<body onclick="startMusic()">
+  <canvas id="fireworkCanvas"></canvas>
+  <div class="card" id="card">
+    <h1 id="title">💖 Tớ Có Điều Muốn Nói... 💖</h1>
+    <p id="message">Tớ thích cậu từ lâu rồi. Cậu có muốn làm người yêu tớ không?</p>
+    <button class="btn" id="yesBtn" onclick="yesClicked()">Đồng ý 💘</button>
+    <button class="btn" id="noBtn" onmouseover="noHover()">Không 😢</button>
+    <div id="noMessage">Cậu đừng nhấn không nữa mà hãy nhấn đồng ý đi!</div>
+    <div id="bigHeart">💕</div>
+  </div>
+
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/10/30/audio_a9ef7c1b57.mp3" type="audio/mp3" />
+  </audio>
+
+<script>
+  // Nhạc nền
+  function startMusic() {
+    const audio = document.getElementById("bgMusic");
+    audio.play();
+  }
+
+  // Tạo trái tim bay nền
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = (Math.random() * 2 + 3) + "s";
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 5000);
+  }
+  setInterval(createHeart, 300);
+
+  const noBtn = document.getElementById("noBtn");
+  const card = document.getElementById("card");
+  const noMessage = document.getElementById("noMessage");
+  const maxNoMoves = 15;
+  let noMoveCount = 0;
+  let isStopped = false;
+
+  function noHover() {
+    if (isStopped) return;
+
+    noMoveCount++;
+
+    if (noMoveCount < maxNoMoves) {
+      // Nút "Không" nhảy ngẫu nhiên trong phạm vi card
+      const cardRect = card.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const maxX = cardRect.width - btnRect.width;
+      const maxY = cardRect.height - btnRect.height;
+
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+
+      noBtn.style.left = randomX + "px";
+      noBtn.style.top = randomY + "px";
+    } else {
+      // Đủ 15 lần, ẩn nút "Không" và hiện thông báo dưới card
+      isStopped = true;
+      noBtn.style.display = "none";
+      noMessage.style.display = "block";
+    }
+  }
+
+  noBtn.addEventListener("click", () => {
+    if (isStopped) {
+      alert("Cậu hãy chọn Đồng ý đi! 💘");
+    }
+  });
+
+  // Pháo hoa trái tim
+  const canvas = document.getElementById("fireworkCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  function yesClicked() {
+    document.getElementById("message").innerText = "Nhưng Mà Tớ Chỉ Trêu Cậu Thôi 😍💕";
+    document.getElementById("title").innerText = "💕 Cậu Đồng Ý Rồi À 💕";
+
+    card.style.backgroundColor = "#ffe4ec";
+
+    document.getElementById("yesBtn").style.display = "none";
+    noBtn.style.display = "none";
+    noMessage.style.display = "none";
+
+    const bigHeart = document.getElementById("bigHeart");
+    bigHeart.classList.add("show");
+
+    launchFirework();
+  }
+
+  function launchFirework() {
+    const particles = [];
+    const count = 30;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count;
+      const speed = Math.random() * 4 + 2;
+      particles.push({
+        x: centerX,
+        y: centerY,
+        dx: Math.cos(angle) * speed,
+        dy: Math.sin(angle) * speed,
+        size: 8,
+        alpha: 1,
+      });
+    }
+
+    const interval = setInterval(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.arc(p.x - 4, p.y - 4, 4, 0, Math.PI * 2);
+        ctx.arc(p.x + 4, p.y - 4, 4, 0, Math.PI * 2);
+        ctx.lineTo(p.x, p.y + 6);
+        ctx.fill();
+        ctx.restore();
+
+        p.x += p.dx;
+        p.y += p.dy;
+        p.alpha -= 0.02;
+      });
+
+      if (particles.every((p) => p.alpha <= 0)) {
+        clearInterval(interval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }, 30);
+  }
+</script>
+</body>
+</html>
